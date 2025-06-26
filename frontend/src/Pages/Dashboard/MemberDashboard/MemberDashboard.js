@@ -18,20 +18,36 @@ import moment from "moment";
 function MemberDashboard() {
   const [active, setActive] = useState("profile");
   const [sidebar, setSidebar] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
 
   const API_URL = process.env.REACT_APP_API_URL;
   const { user } = useContext(AuthContext);
   const [memberDetails, setMemberDetails] = useState(null);
 
   useEffect(() => {
+    if (!user || !user._id) {
+      window.location.href = '/signin';
+      return;
+    }
     const getMemberDetails = async () => {
+      setLoading(true);
+      setFetchError("");
       try {
         const response = await axios.get(
           API_URL + "api/users/getuser/" + user._id
         );
-        setMemberDetails(response.data);
+        if (!response.data || Object.keys(response.data).length === 0) {
+          setFetchError("User not found.");
+          setMemberDetails(null);
+        } else {
+          setMemberDetails(response.data);
+        }
       } catch (err) {
-        console.log("Error in fetching the member details");
+        setFetchError("User not found or error fetching user info.");
+        setMemberDetails(null);
+      } finally {
+        setLoading(false);
       }
     };
     getMemberDetails();
@@ -126,196 +142,202 @@ function MemberDashboard() {
         </div>
 
         <div className="dashboard-option-content">
-          <div className="member-profile-content" id="profile@member">
-            <div className="user-details-topbar">
-              <img
-                className="user-profileimage"
-                src="./assets/images/Profile.png"
-                alt=""
-              ></img>
-              <div className="user-info">
-                <p className="user-name">{memberDetails?.userFullName}</p>
-                <p className="user-id">
-                  {memberDetails?.userType === "Student"
-                    ? memberDetails?.admissionId
-                    : memberDetails?.employeeId}
-                </p>
-                <p className="user-email">{memberDetails?.email}</p>
-                <p className="user-phone">{memberDetails?.mobileNumber}</p>
+          {loading ? (
+            <div className="loading-message">Loading user info...</div>
+          ) : fetchError ? (
+            <div className="error-message">{fetchError}</div>
+          ) : memberDetails ? (
+            <>
+              <div className="member-profile-content" id="profile@member">
+                <div className="user-details-topbar">
+                  <img
+                    className="user-profileimage"
+                    src="./assets/images/Profile.png"
+                    alt=""
+                  ></img>
+                  <div className="user-info">
+                    <p className="user-name">{memberDetails?.userFullName}</p>
+                    <p className="user-id">
+                      {memberDetails?.userType === "Student"
+                        ? memberDetails?.admissionId
+                        : memberDetails?.employeeId}
+                    </p>
+                    <p className="user-email">{memberDetails?.email}</p>
+                    <p className="user-phone">{memberDetails?.mobileNumber}</p>
+                  </div>
+                </div>
+                <div className="user-details-specific">
+                  <div className="specific-left">
+                    <div className="specific-left-top">
+                      <p className="specific-left-topic">
+                        <span style={{ fontSize: "18px" }}>
+                          <b>Age</b>
+                        </span>
+                        <span style={{ fontSize: "16px" }}>
+                          {memberDetails?.age}
+                        </span>
+                      </p>
+                      <p className="specific-left-topic">
+                        <span style={{ fontSize: "18px" }}>
+                          <b>Gender</b>
+                        </span>
+                        <span style={{ fontSize: "16px" }}>
+                          {memberDetails?.gender}
+                        </span>
+                      </p>
+                    </div>
+                    <div className="specific-left-bottom">
+                      <p className="specific-left-topic">
+                        <span style={{ fontSize: "18px" }}>
+                          <b>DOB</b>
+                        </span>
+                        <span style={{ fontSize: "16px" }}>
+                          {memberDetails?.dob}
+                        </span>
+                      </p>
+                      <p className="specific-left-topic">
+                        <span style={{ fontSize: "18px" }}>
+                          <b>Address</b>
+                        </span>
+                        <span style={{ fontSize: "16px" }}>
+                          {memberDetails?.address}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="specific-right">
+                    <div className="specific-right-top">
+                      <p className="specific-right-topic">
+                        <b>Points</b>
+                      </p>
+                      <p
+                        style={{
+                          fontSize: "25px",
+                          fontWeight: "500",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginTop: "15px",
+                        }}
+                      >
+                        540
+                      </p>
+                    </div>
+                    <div className="dashboard-title-line"></div>
+                    <div className="specific-right-bottom">
+                      <p className="specific-right-topic">
+                        <b>Rank</b>
+                      </p>
+                      <p
+                        style={{
+                          fontSize: "25px",
+                          fontWeight: "500",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginTop: "15px",
+                        }}
+                      >
+                        {memberDetails?.points}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="user-details-specific">
-              <div className="specific-left">
-                <div className="specific-left-top">
-                  <p className="specific-left-topic">
-                    <span style={{ fontSize: "18px" }}>
-                      <b>Age</b>
-                    </span>
-                    <span style={{ fontSize: "16px" }}>
-                      {memberDetails?.age}
-                    </span>
-                  </p>
-                  <p className="specific-left-topic">
-                    <span style={{ fontSize: "18px" }}>
-                      <b>Gender</b>
-                    </span>
-                    <span style={{ fontSize: "16px" }}>
-                      {memberDetails?.gender}
-                    </span>
-                  </p>
-                </div>
-                <div className="specific-left-bottom">
-                  <p className="specific-left-topic">
-                    <span style={{ fontSize: "18px" }}>
-                      <b>DOB</b>
-                    </span>
-                    <span style={{ fontSize: "16px" }}>
-                      {memberDetails?.dob}
-                    </span>
-                  </p>
-                  <p className="specific-left-topic">
-                    <span style={{ fontSize: "18px" }}>
-                      <b>Address</b>
-                    </span>
-                    <span style={{ fontSize: "16px" }}>
-                      {memberDetails?.address}
-                    </span>
-                  </p>
-                </div>
-              </div>
-              <div className="specific-right">
-                <div className="specific-right-top">
-                  <p className="specific-right-topic">
-                    <b>Points</b>
-                  </p>
-                  <p
-                    style={{
-                      fontSize: "25px",
-                      fontWeight: "500",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginTop: "15px",
-                    }}
-                  >
-                    540
-                  </p>
-                </div>
-                <div className="dashboard-title-line"></div>
-                <div className="specific-right-bottom">
-                  <p className="specific-right-topic">
-                    <b>Rank</b>
-                  </p>
-                  <p
-                    style={{
-                      fontSize: "25px",
-                      fontWeight: "500",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginTop: "15px",
-                    }}
-                  >
-                    {memberDetails?.points}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div className="member-activebooks-content" id="activebooks@member">
-            <p className="member-dashboard-heading">Issued</p>
-            <table className="activebooks-table">
-              <tr>
-                <th>S.No</th>
-                <th>Book-Name</th>
-                <th>From Date</th>
-                <th>To Date</th>
-                <th>Fine</th>
-              </tr>
-              {memberDetails?.activeTransactions
-                ?.filter((data) => {
-                  return data.transactionType === "Issued";
-                })
-                .map((data, index) => {
-                  return (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{data.bookName}</td>
-                      <td>{data.fromDate}</td>
-                      <td>{data.toDate}</td>
-                      <td>
-                        {Math.floor(
-                          (Date.parse(moment(new Date()).format("MM/DD/YYYY")) -
-                            Date.parse(data.toDate)) /
-                            86400000
-                        ) <= 0
-                          ? 0
-                          : Math.floor(
-                              (Date.parse(
-                                moment(new Date()).format("MM/DD/YYYY")
-                              ) -
+              <div className="member-activebooks-content" id="activebooks@member">
+                <p className="member-dashboard-heading">Issued</p>
+                <table className="activebooks-table">
+                  <thead>
+                    <tr>
+                      <th>S.No</th>
+                      <th>Book-Name</th>
+                      <th>From Date</th>
+                      <th>To Date</th>
+                      <th>Fine</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {memberDetails?.activeTransactions
+                      ?.filter((data) => data.transactionType === "Issued")
+                      .map((data, index) => (
+                        <tr key={index}>
+                          <td>{index + 1}</td>
+                          <td>{data.bookName}</td>
+                          <td>{data.fromDate}</td>
+                          <td>{data.toDate}</td>
+                          <td>
+                            {Math.floor(
+                              (Date.parse(moment(new Date()).format("MM/DD/YYYY")) -
                                 Date.parse(data.toDate)) /
                                 86400000
-                            ) * 10}
-                      </td>
-                    </tr>
-                  );
-                })}
-            </table>
-          </div>
+                            ) <= 0
+                              ? 0
+                              : Math.floor(
+                                  (Date.parse(
+                                    moment(new Date()).format("MM/DD/YYYY")
+                                  ) - Date.parse(data.toDate)) /
+                                    86400000
+                                ) * 10}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
 
-          <div
-            className="member-reservedbooks-content"
-            id="reservedbooks@member"
-          >
-            <p className="member-dashboard-heading">Reserved</p>
-            <table className="activebooks-table">
-              <tr>
-                <th>S.No</th>
-                <th>Book-Name</th>
-                <th>From</th>
-                <th>To</th>
-              </tr>
-              {memberDetails?.activeTransactions
-                ?.filter((data) => {
-                  return data.transactionType === "Reserved";
-                })
-                .map((data, index) => {
-                  return (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{data.bookName}</td>
-                      <td>{data.fromDate}</td>
-                      <td>{data.toDate}</td>
+              <div className="member-reservedbooks-content" id="reservedbooks@member">
+                <p className="member-dashboard-heading">Reserved</p>
+                <table className="activebooks-table">
+                  <thead>
+                    <tr>
+                      <th>S.No</th>
+                      <th>Book-Name</th>
+                      <th>From</th>
+                      <th>To</th>
                     </tr>
-                  );
-                })}
-            </table>
-          </div>
-          <div className="member-history-content" id="history@member">
-            <p className="member-dashboard-heading">History</p>
-            <table className="activebooks-table">
-              <tr>
-                <th>S.No</th>
-                <th>Book-Name</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Return Date</th>
-              </tr>
-              {memberDetails?.prevTransactions?.map((data, index) => {
-                return (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{data.bookName}</td>
-                    <td>{data.fromDate}</td>
-                    <td>{data.toDate}</td>
-                    <td>{data.returnDate}</td>
-                  </tr>
-                );
-              })}
-            </table>
-          </div>
+                  </thead>
+                  <tbody>
+                    {memberDetails?.activeTransactions
+                      ?.filter((data) => data.transactionType === "Reserved")
+                      .map((data, index) => (
+                        <tr key={index}>
+                          <td>{index + 1}</td>
+                          <td>{data.bookName}</td>
+                          <td>{data.fromDate}</td>
+                          <td>{data.toDate}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="member-history-content" id="history@member">
+                <p className="member-dashboard-heading">History</p>
+                <table className="activebooks-table">
+                  <thead>
+                    <tr>
+                      <th>S.No</th>
+                      <th>Book-Name</th>
+                      <th>From</th>
+                      <th>To</th>
+                      <th>Return Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {memberDetails?.prevTransactions?.map((data, index) => (
+                      <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td>{data.bookName}</td>
+                        <td>{data.fromDate}</td>
+                        <td>{data.toDate}</td>
+                        <td>{data.returnDate}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          ) : null}
         </div>
       </div>
     </div>
