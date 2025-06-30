@@ -1,6 +1,8 @@
 import express from "express"
 import Book from "../models/Book.js"
 import BookCategory from "../models/BookCategory.js"
+import User from "../models/User.js";
+import BookTransaction from "../models/BookTransaction.js";
 
 const router = express.Router()
 
@@ -18,10 +20,10 @@ router.get("/allbooks", async (req, res) => {
 /* Get Book by book Id */
 router.get("/getbook/:id", async (req, res) => {
     try {
-        const book = await Book.findById(req.params.id).populate("transactions")
+        const book = await Book.findById(req.params.id)
         res.status(200).json(book)
     }
-    catch {
+    catch (err) {
         return res.status(500).json(err)
     }
 })
@@ -99,5 +101,43 @@ router.delete("/removebook/:id", async (req, res) => {
         return res.status(403).json("You dont have permission to delete a book!");
     }
 })
+
+// Register (reserve) a book for a user
+router.post("/register", async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const {bookId} = req.body;
+          const book = await Book.findById(bookId)
+        if (!book) return res.status(404).json({ message:bookId +" book not found" });
+        if (book.bookCountAvailable < 1) {
+            return res.status(400).json({ message: "Book not available" });
+        }
+
+        // Create a new transaction
+        const transaction = new BookTransaction({
+            user: userId,
+            book: book._id,
+            bookName: book.bookName,
+            transactionType: "Issued",
+            fromDate: new Date(),
+            toDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
+        });
+        await transaction.save();
+
+        // Update book and user
+        book.transactions.push(transaction._id);
+        book.bookCountAvailable -= 1;
+        book.bookStatus = "Issued"; // Update book status to Issued
+        await book.save();
+
+        await User.findByIdAndUpdate(userId, {
+            $push: { activeTransactions: transaction._id }
+        });
+
+        res.status(200).json({ message: "Book registered successfully", transaction });
+    } catch (err) {
+        res.status(500).json({ message: "Registration failed", error: err.message });
+    }
+});
 
 export default router

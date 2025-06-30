@@ -1,0 +1,137 @@
+.bookdetails-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 80vh;
+  background: #f7f7f7;
+  padding: 40px 0;
+}
+
+.bookdetails-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  display: flex;
+  padding: 32px 24px;
+  max-width: 600px;
+  width: 100%;
+  gap: 32px;
+}
+
+.bookdetails-image {
+  width: 150px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.10);
+  background: #eee;
+}
+
+.bookdetails-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bookdetails-info h2 {
+  margin: 0 0 10px 0;
+  font-size: 1.7rem;
+  color: #222;
+}
+
+.bookdetails-info p {
+  margin: 0;
+  font-size: 1rem;
+  color: #444;
+}
+
+.reserve-btn {
+  margin-top: 18px;
+  padding: 10px 24px;
+  background: #e44d26;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.reserve-btn:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+
+.reserve-message {
+  margin-top: 10px;
+  color: #1a8917;
+  font-weight: 500;
+}
+
+.back-btn {
+  margin-top: 18px;
+  padding: 8px 18px;
+  background: #eee;
+  color: #222;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.back-btn:hover {
+  background: #ddd;
+}
+
+.bookdetails-loading,
+.bookdetails-error {
+  margin: 60px auto;
+  font-size: 1.2rem;
+  color: #e44d26;
+  text-align: center;
+}
+
+.bookdetails-error {
+  color: #e44d26;
+  font-weight: 500;
+}
+
+.bookdetails-success {
+  margin-top: 10px;
+  color: #1a8917;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .bookdetails-container {
+    padding: 20px 0;
+  }
+
+  .bookdetails-card {
+    padding: 24px 16px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .bookdetails-image {
+    width: 120px;
+    height: 180px;
+  }
+
+  .bookdetails-info h2 {
+    font-size: 1.5rem;
+  }
+
+  .bookdetails-info p {
+    font-size: 0.9rem;
+  }
+
+  .reserve-btn,
+  .back-btn {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 1.1rem;
+  }
+}

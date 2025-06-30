@@ -8,6 +8,7 @@ import Header from './Components/Header';
 import AdminDashboard from './Pages/Dashboard/AdminDashboard/AdminDashboard.js';
 import { useContext } from "react"
 import { AuthContext } from "./Context/AuthContext.js"
+import BookDetails from "./Pages/BookDetails";
 
 function App() {
 
@@ -35,6 +36,9 @@ function App() {
           </Route>
           <Route exact path='/books'>
             <Allbooks />
+          </Route>
+          <Route path="/book/:id" element={<BookDetails />} >
+            <BookDetails />
           </Route>
         </Switch>
       </div>
