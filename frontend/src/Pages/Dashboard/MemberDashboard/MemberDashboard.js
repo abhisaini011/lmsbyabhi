@@ -82,7 +82,11 @@ function UserProfile() {
           <ul className="active-transactions-list">
             {userDetails.activeTransactions.map((transaction, idx) => (
               <li key={transaction._id || idx} className="active-transaction-item">
-                <span>{transaction.bookName}</span>
+                <span className="bookname">{transaction.bookName}</span>
+                <span className="transaction-date">
+                  {new Date(transaction.fromDate).toLocaleDateString()} - {new Date(transaction.toDate).toLocaleDateString()}
+                </span>
+                <span className="transaction-type">{transaction.transactionType}</span>
               </li>
             ))}
           </ul>

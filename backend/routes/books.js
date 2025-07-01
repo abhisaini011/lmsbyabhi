@@ -6,7 +6,7 @@ import BookTransaction from "../models/BookTransaction.js";
 
 const router = express.Router()
 
-/* Get all books in the db */
+// Get all books in the db
 router.get("/allbooks", async (req, res) => {
     try {
         const books = await Book.find({}).populate("transactions").sort({ _id: -1 })
@@ -17,7 +17,7 @@ router.get("/allbooks", async (req, res) => {
     }
 })
 
-/* Get Book by book Id */
+// Get Book by book Id
 router.get("/getbook/:id", async (req, res) => {
     try {
         const book = await Book.findById(req.params.id)
@@ -28,7 +28,7 @@ router.get("/getbook/:id", async (req, res) => {
     }
 })
 
-/* Get books by category name*/
+// Get books by category name
 router.get("/", async (req, res) => {
     const category = req.query.category
     try {
@@ -40,7 +40,7 @@ router.get("/", async (req, res) => {
     }
 })
 
-/* Adding book */
+// Adding book
 router.post("/addbook", async (req, res) => {
     if (req.body.isAdmin) {
         try {
@@ -67,7 +67,7 @@ router.post("/addbook", async (req, res) => {
     }
 })
 
-/* Addding book */
+// Updating book
 router.put("/updatebook/:id", async (req, res) => {
     if (req.body.isAdmin) {
         try {
@@ -85,7 +85,7 @@ router.put("/updatebook/:id", async (req, res) => {
     }
 })
 
-/* Remove book  */
+// Remove book
 router.delete("/removebook/:id", async (req, res) => {
     if (req.body.isAdmin) {
         try {
@@ -107,7 +107,7 @@ router.post("/register", async (req, res) => {
     try {
         const {userId} = req.body;
         const {bookId} = req.body;
-          const book = await Book.findById(bookId)
+        const book = await Book.findById(bookId)
         if (!book) return res.status(404).json({ message:bookId +" book not found" });
         if (book.bookCountAvailable < 1) {
             return res.status(400).json({ message: "Book not available" });
@@ -131,9 +131,8 @@ router.post("/register", async (req, res) => {
         await book.save();
 
         await User.findByIdAndUpdate(userId, {
-            $push: { activeTransactions: transaction._id,reservedBooks: book._id}
+            $push: { activeTransactions: transaction._id, reservedBooks: book._id }
         });
-        // console.log(`Transaction ${transaction._id} added to user ${userId}'s activeTransactions. ${book._id} added to reservedBooks.`);
 
         res.status(200).json({ message: "Book registered successfully", transaction });
     } catch (err) {
@@ -158,10 +157,25 @@ router.post("/unregister", async (req, res) => {
         book.bookStatus = "Available";
         await book.save();
 
-        // Optionally, remove transaction from user.activeTransactions
-        await User.findByIdAndUpdate(userId, {
-            $pull: { activeTransactions: { book: bookId } }
+        // Remove transaction related to this user and book
+        const transaction = await BookTransaction.findOneAndDelete({
+            user: userId,
+            book: bookId,
+            transactionType: "Issued",
+            transactionStatus: "Active"
         });
+
+        // Remove transaction from user's activeTransactions and book's transactions array
+        if (transaction) {
+            await User.findByIdAndUpdate(userId, {
+                $pull: { activeTransactions: transaction._id }
+            });
+            await Book.findByIdAndUpdate(bookId, {
+                $pull: { transactions: transaction._id }
+            });
+        }
+
+        // Remove book from user's reservedBooks
         await User.findByIdAndUpdate(userId, {
             $pull: { reservedBooks: bookId }
         });
