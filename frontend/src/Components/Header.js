@@ -61,7 +61,7 @@ function Header() {
                     </li>
                     {isLoggedIn ? (
                         <li className="option" onClick={() => { closeMenu() }}>
-                            <Link to='/dashboard@member'>
+                            <Link to='/profile'>
                                 <a href="#profile">{user ? user.userFullName : 'Profile'}</a>
                             </Link>
                             <button onClick={handleLogout} style={{marginLeft: '10px'}}>Logout</button>

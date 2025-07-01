@@ -60,6 +60,10 @@ const UserSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: "BookTransaction"
     }],
+    reservedBooks: [{
+        type: mongoose.Types.ObjectId,
+        ref: "Book"
+    }],
     prevTransactions: [{
         type: mongoose.Types.ObjectId,
         ref: "BookTransaction"

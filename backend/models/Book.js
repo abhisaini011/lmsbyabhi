@@ -33,6 +33,10 @@ const BookSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId, 
         ref: "BookCategory" 
     }],
+    reserveuser:[{
+        type: mongoose.Types.ObjectId,
+        ref: "User"
+    }],
     transactions:[{
         type:mongoose.Types.ObjectId,
         ref:"BookTransaction"

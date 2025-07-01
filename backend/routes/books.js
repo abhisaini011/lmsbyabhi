@@ -105,7 +105,7 @@ router.delete("/removebook/:id", async (req, res) => {
 // Register (reserve) a book for a user
 router.post("/register", async (req, res) => {
     try {
-        const { userId } = req.body;
+        const {userId} = req.body;
         const {bookId} = req.body;
           const book = await Book.findById(bookId)
         if (!book) return res.status(404).json({ message:bookId +" book not found" });
@@ -123,7 +123,7 @@ router.post("/register", async (req, res) => {
             toDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
         });
         await transaction.save();
-
+        book.reserveuser = userId;
         // Update book and user
         book.transactions.push(transaction._id);
         book.bookCountAvailable -= 1;
@@ -131,12 +131,44 @@ router.post("/register", async (req, res) => {
         await book.save();
 
         await User.findByIdAndUpdate(userId, {
-            $push: { activeTransactions: transaction._id }
+            $push: { activeTransactions: transaction._id,reservedBooks: book._id}
         });
+        // console.log(`Transaction ${transaction._id} added to user ${userId}'s activeTransactions. ${book._id} added to reservedBooks.`);
 
         res.status(200).json({ message: "Book registered successfully", transaction });
     } catch (err) {
         res.status(500).json({ message: "Registration failed", error: err.message });
+    }
+});
+
+// Unregister (cancel reservation) a book for a user
+router.post("/unregister", async (req, res) => {
+    try {
+        const { userId, bookId } = req.body;
+        const book = await Book.findById(bookId);
+        if (!book) return res.status(404).json({ message: "Book not found" });
+
+        if (!book.reserveuser || book.reserveuser.toString() !== userId) {
+            return res.status(403).json({ message: "You have not reserved this book." });
+        }
+
+        // Remove reservation
+        book.reserveuser = null;
+        book.bookCountAvailable += 1;
+        book.bookStatus = "Available";
+        await book.save();
+
+        // Optionally, remove transaction from user.activeTransactions
+        await User.findByIdAndUpdate(userId, {
+            $pull: { activeTransactions: { book: bookId } }
+        });
+        await User.findByIdAndUpdate(userId, {
+            $pull: { reservedBooks: bookId }
+        });
+
+        res.status(200).json({ message: "Book unregistered successfully" });
+    } catch (err) {
+        res.status(500).json({ message: "Unregister failed", error: err.message });
     }
 });
 

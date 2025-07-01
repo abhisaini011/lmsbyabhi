@@ -7,19 +7,24 @@ const router = express.Router()
 router.post("/add-transaction", async (req, res) => {
     try {
         if (req.body.isAdmin === true) {
-            const newtransaction = await new BookTransaction({
+            // Fetch the book to get its coverImage
+            const book = await Book.findById(req.body.bookId);
+            if (!book) return res.status(404).json("Book not found");
+
+            const newtransaction = new BookTransaction({
                 bookId: req.body.bookId,
                 borrowerId: req.body.borrowerId,
                 bookName: req.body.bookName,
+                bookcoverImage: book.coverImage, // Use book's coverImage here
                 borrowerName: req.body.borrowerName,
                 transactionType: req.body.transactionType,
                 fromDate: req.body.fromDate,
                 toDate: req.body.toDate
-            })
-            const transaction = await newtransaction.save()
-            const book = Book.findById(req.body.bookId)
-            await book.updateOne({ $push: { transactions: transaction._id } })
-            res.status(200).json(transaction)
+            });
+            console.log(book.coverImage, "Book Cover Image");
+            const transaction = await newtransaction.save();
+            await book.updateOne({ $push: { transactions: transaction._id } });
+            res.status(200).json(transaction);
         }
         else if (req.body.isAdmin === false) {
             res.status(500).json("You are not allowed to add a Transaction")

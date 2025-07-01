@@ -45,6 +45,23 @@ function BookDetails() {
     }
   };
 
+  const handleUnregister = async () => {
+    if (!user || !user._id) {
+      setRegisterMsg("Please login to unregister this book.");
+      return;
+    }
+    setRegisterMsg("Unregistering...");
+    try {
+      const res = await axios.post(API_URL + "api/books/unregister", { userId: user._id, bookId: id });
+      setRegisterMsg(res.data.message || "Book unregistered!");
+      // Optionally, refetch book details
+      const updated = await axios.get(API_URL + "api/books/getbook/" + id);
+      setBook(updated.data);
+    } catch (err) {
+      setRegisterMsg(err.response?.data?.message || "Unregister failed");
+    }
+  };
+
   if (loading) return <div className="bookdetails-loading">Loading...</div>;
   if (error) return <div className="bookdetails-error">{error}</div>;
   if (!book) return <div className="bookdetails-error">Book not found.</div>;
@@ -64,13 +81,20 @@ function BookDetails() {
           <p><b>Language:</b> {book.language}</p>
           <p><b>Available:</b> {book.bookCountAvailable}</p>
           <p><b>Status:</b> {book.bookStatus}</p>
-          <button
-            className="reserve-btn"
-            onClick={handleRegister}
-            disabled={book.bookCountAvailable < 1}
-          >
-            Register Book
-          </button>
+          {/* <p><b>user:</b>{book.reserveuser}</p> */}
+          {book.reserveuser && user && String(book.reserveuser) === String(user._id) ? (
+            <button className="reserve-btn" onClick={handleUnregister}>
+              Unregister Book
+            </button>
+          ) : (
+            <button
+              className="reserve-btn"
+              onClick={handleRegister}
+              disabled={book.bookCountAvailable < 1 || (book.reserveUser && String(book.reserveUser) !== String(user?._id))}
+            >
+              Register Book
+            </button>
+          )}
           {registerMsg && <div className="reserve-message">{registerMsg}</div>}
           <button className="back-btn" onClick={() => history.goBack()}>Back</button>
         </div>

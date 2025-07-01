@@ -47,6 +47,7 @@ function AddTransaction() {
                     bookId: bookId,
                     borrowerId: borrowerId,
                     borrowerName: borrower_details.data.userFullName,
+                    bookcoverImage: book_details.data.coverImage,
                     bookName: book_details.data.bookName,
                     transactionType: transactionType,
                     fromDate: fromDateString,

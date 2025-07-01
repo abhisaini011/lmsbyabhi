@@ -2,7 +2,7 @@ import Home from './Pages/Home';
 import Signin from './Pages/Signin'
 import Signup from './Pages/Signup'
 import { BrowserRouter as Router, Switch, Redirect, Route } from "react-router-dom";
-import MemberDashboard from './Pages/Dashboard/MemberDashboard/MemberDashboard.js';
+import UserProfile from './Pages/Dashboard/MemberDashboard/MemberDashboard.js';
 import Allbooks from './Pages/Allbooks';
 import Header from './Components/Header';
 import AdminDashboard from './Pages/Dashboard/AdminDashboard/AdminDashboard.js';
@@ -28,8 +28,8 @@ function App() {
           <Route exact path='/signup'>
             {user ? (user.isAdmin ? <Redirect to='/dashboard@admin' /> : <Redirect to='/dashboard@member' />) : <Signup />}
           </Route>
-          <Route exact path='/dashboard@member'>
-            {user ? (user.isAdmin === false ? <MemberDashboard /> : <Redirect to='/' />) : <Redirect to='/' />}
+          <Route exact path='/profile'>
+            {user ? (user.isAdmin === false ? <UserProfile /> : <Redirect to='/' />) : <Redirect to='/' />}
           </Route>
           <Route exact path='/dashboard@admin'>
             {user ? (user.isAdmin === true ? <AdminDashboard /> : <Redirect to='/' />) : <Redirect to='/' />}

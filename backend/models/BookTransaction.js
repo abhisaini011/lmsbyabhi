@@ -17,6 +17,10 @@ const BookTransactionSchema = new mongoose.Schema({
         type: String,
         require: true
     },
+    bookcoverImage: { //URL of the book cover image
+        type: String,
+        require: true
+    },
     transactionType: { //Issue or Reservation
         type: String,
         require: true,
