@@ -51,6 +51,7 @@ function Allbooks() {
               />
               <p className="bookcard-title">{book.bookName}</p>
               <p className="bookcard-author">By {book.author}</p>
+              <p className="book-count">Available book {book.bookCountAvailable}</p>
               <div className="bookcard-category">
                 <p>{book.categories && book.categories.length > 0 ? book.categories.join(", ") : "No Category"}</p>
               </div>

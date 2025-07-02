@@ -29,6 +29,7 @@ function Header() {
         setIsLoggedIn(false);
         setUser(null);
         history.push('/signin');
+        window.location.reload(); // Reload the page after logout
     };
 
     const Toggle = () => {

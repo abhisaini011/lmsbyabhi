@@ -26,7 +26,7 @@ function Signin() {
                 document.cookie = `userEmail=${res.data.email}; path=/;`;
                 // Redirect based on userType
                 if (res.data.userType === 'Student') {
-                    window.location.href = '/memberdashboard';
+                    window.location.href = '/profile';
                 } else {
                     window.location.href = '/admindashboard';
                 }

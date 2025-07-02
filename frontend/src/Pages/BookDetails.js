@@ -40,6 +40,7 @@ function BookDetails() {
     try {
       const res = await axios.post(API_URL + "api/books/register", { userId: user._id ,bookId: id });
       setRegisterMsg(res.data.message || "Book registered!");
+      window.location.reload(); 
     } catch (err) {
       setRegisterMsg(err.response?.data?.message || "Registration failed");
     }
@@ -57,6 +58,7 @@ function BookDetails() {
       // Optionally, refetch book details
       const updated = await axios.get(API_URL + "api/books/getbook/" + id);
       setBook(updated.data);
+      window.location.reload(); 
     } catch (err) {
       setRegisterMsg(err.response?.data?.message || "Unregister failed");
     }

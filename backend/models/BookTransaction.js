@@ -39,7 +39,9 @@ const BookTransactionSchema = new mongoose.Schema({
     transactionStatus: {
         type: String,
         default: "Active"
-    }
+    },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    book: { type: mongoose.Schema.Types.ObjectId, ref: "Book" },
 },
     {
         timestamps: true

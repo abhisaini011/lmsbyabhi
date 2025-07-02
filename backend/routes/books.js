@@ -120,7 +120,8 @@ router.post("/register", async (req, res) => {
             bookName: book.bookName,
             transactionType: "Issued",
             fromDate: new Date(),
-            toDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
+            toDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+            transactionStatus: "Active"
         });
         await transaction.save();
         book.reserveuser = userId;
@@ -157,22 +158,31 @@ router.post("/unregister", async (req, res) => {
         book.bookStatus = "Available";
         await book.save();
 
-        // Remove transaction related to this user and book
-        const transaction = await BookTransaction.findOneAndDelete({
+        // Find the active transaction related to this user and book
+        console.log("Unregister request:", { userId, bookId });
+
+        // Debug: Show all transactions for this user and book
+        const allTransactions = await BookTransaction.find({ user: userId, book: bookId });
+        console.log("All transactions for user/book:", allTransactions);
+
+        const transaction = await BookTransaction.findOne({
             user: userId,
             book: bookId,
             transactionType: "Issued",
             transactionStatus: "Active"
         });
+        console.log("Transaction found:", transaction);
 
-        // Remove transaction from user's activeTransactions and book's transactions array
+        // Remove transaction from user's activeTransactions and book's transactions array, then delete transaction
         if (transaction) {
+            console.log("Transaction found:", transaction._id);
             await User.findByIdAndUpdate(userId, {
                 $pull: { activeTransactions: transaction._id }
             });
             await Book.findByIdAndUpdate(bookId, {
                 $pull: { transactions: transaction._id }
             });
+            await BookTransaction.findByIdAndDelete(transaction._id);
         }
 
         // Remove book from user's reservedBooks

@@ -23,10 +23,10 @@ function App() {
             <Home />
           </Route>
           <Route exact path='/signin'>
-            {user ? (user.isAdmin ? <Redirect to='/dashboard@admin' /> : <Redirect to='/dashboard@member' />) : <Signin />}
+            {user ? (user.isAdmin ? <Redirect to='/dashboard@admin' /> : <Redirect to='/profile' />) : <Signin />}
           </Route>
           <Route exact path='/signup'>
-            {user ? (user.isAdmin ? <Redirect to='/dashboard@admin' /> : <Redirect to='/dashboard@member' />) : <Signup />}
+            {user ? (user.isAdmin ? <Redirect to='/dashboard@admin' /> : <Redirect to='/profile' />) : <Signup />}
           </Route>
           <Route exact path='/profile'>
             {user ? (user.isAdmin === false ? <UserProfile /> : <Redirect to='/' />) : <Redirect to='/' />}
@@ -37,7 +37,8 @@ function App() {
           <Route exact path='/books'>
             <Allbooks />
           </Route>
-          <Route path="/book/:id" element={<BookDetails />} >
+          <Route path="/book/:id">
+       
             <BookDetails />
           </Route>
         </Switch>
